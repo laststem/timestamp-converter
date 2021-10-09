@@ -41,8 +41,14 @@ var rootCmd = &cobra.Command{
 			cmd.PrintErrln(err)
 			return
 		}
+		
+		tz := os.Getenv("TZ")
+		locf := cmd.Flag("loc").Value.String()
+		if locf != "" {
+			tz = locf
+		}
 
-		loc, err := time.LoadLocation(cmd.Flag("loc").Value.String())
+		loc, err := time.LoadLocation(tz)
 		if err != nil {
 			cmd.PrintErrln(err)
 			return
@@ -64,7 +70,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	rootCmd.Flags().StringP("loc", "l", "UTC", "Set timezone")
+	rootCmd.Flags().StringP("loc", "l", "", "Set timezone")
 }
 
 // initConfig reads in config file and ENV variables if set.
