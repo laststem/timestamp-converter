@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,12 +36,28 @@ var rootCmd = &cobra.Command{
 	Example: "tc 1593766111",
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		parsed, err := strconv.ParseInt(args[0], 10, 64)
-		if err != nil {
-			cmd.PrintErrln(err)
-			return
+		var parsedSeconds int64
+		var parsedNanoseconds int64 = 0
+		var err error
+		if len(args[0]) <= 10 {
+			parsedSeconds, err = strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				cmd.PrintErrln(err)
+				return
+			}
+		} else {
+			parsedSeconds, err = strconv.ParseInt(args[0][:10], 10, 64)
+			if err != nil {
+				cmd.PrintErrln(err)
+				return
+			}
+			parsedNanoseconds, err = strconv.ParseInt(args[0][10:], 10, 64)
+			if err != nil {
+				cmd.PrintErrln(err)
+				return
+			}
 		}
-		
+
 		tz := os.Getenv("TZ")
 		locf := cmd.Flag("loc").Value.String()
 		if locf != "" {
@@ -54,8 +70,12 @@ var rootCmd = &cobra.Command{
 			return
 		}
 
-		converted := time.Unix(parsed, 0).In(loc)
-		cmd.Print(converted.Format(time.RFC3339))
+		converted := time.Unix(parsedSeconds, parsedNanoseconds).In(loc)
+		if parsedNanoseconds == 0 {
+			cmd.Println(converted.Format(time.RFC3339))
+		} else {
+			cmd.Println(converted.Format(time.RFC3339Nano))
+		}
 	},
 }
 
