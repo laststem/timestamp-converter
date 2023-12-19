@@ -3,7 +3,7 @@ Simple CLI timestamp converter
 
 ### Install
 ```bash
-go get -u github.com/laststem/timestamp-converter/cmd/tc
+go install github.com/laststem/timestamp-converter/cmd/tc@latest
 ```
 
 ### Usage
